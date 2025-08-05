@@ -38,7 +38,7 @@ source "vmware-iso" "windows11" {
   disk_adapter_type = "nvme"
   cpus              = 2
   memory            = 4096
-  floppy_files      = [
+  floppy_files = [
     "./http/autounattend.xml",
     "./scripts/winrm.ps1",
     "./scripts/sysprep.ps1",
@@ -65,6 +65,7 @@ build {
 
   provisioner "powershell" {
     inline = [
+      "Write-Host 'Waiting for bolt to install. Rebooting in 2 min...'",
       "Start-Sleep -Seconds 120",
       "Restart-Computer -Force"
     ]
@@ -72,7 +73,34 @@ build {
 
   provisioner "powershell" {
     inline = [
-      "bolt plan run windows_config --targets localhost --project A:\\windows_config"
+      "Write-Host 'Copying files to temp dir...'",
+      "New-Item -Path C:\\temp\\windows_config\\files -ItemType Directory -Force",
+      "New-Item -Path C:\\temp\\windows_config\\plans -ItemType Directory -Force",
+      
+      "Copy-Item A:\\agent-config.yml C:\\temp\\windows_config\\files\\agent-config.yml -Force",
+      "Copy-Item A:\\install.ps1 C:\\temp\\windows_config\\files\\install.ps1 -Force",
+      "Copy-Item A:\\LaunchConfig.json C:\\temp\\windows_config\\files\\LaunchConfig.json -Force",
+
+      "Copy-Item A:\\aws.pp C:\\temp\\windows_config\\plans\\aws.pp -Force",
+      "Copy-Item A:\\base.pp C:\\temp\\windows_config\\plans\\base.pp -Force",
+      "Copy-Item A:\\init.pp C:\\temp\\windows_config\\plans\\init.pp -Force",
+      "Copy-Item A:\\puppet.pp C:\\temp\\windows_config\\plans\\puppet.pp -Force",
+      "Copy-Item A:\\update.pp C:\\temp\\windows_config\\plans\\update.pp -Force",
+
+      "Copy-Item A:\\bolt-project.yaml C:\\temp\\windows_config\\bolt-project.yaml -Force"
+    ]
+  }
+
+  provisioner "powershell" {
+    inline = [
+      "bolt plan run windows_config --targets localhost --project C:\\temp\\windows_config"
+    ]
+  }
+
+  provisioner "powershell" {
+    inline = [
+      "$sysprep = \"$Env:SystemRoot\\System32\\Sysprep\\Sysprep.exe\"",
+      "Start-Process -Wait -FilePath $sysprep -ArgumentList '/generalize','/oobe','/shutdown','/quiet'"
     ]
   }
 
@@ -81,13 +109,6 @@ build {
     restart_timeout = "10m"
     restart_command = "shutdown /r /t 45 /f"
     timeout         = "10m"
-  }
-
-  provisioner "powershell" {
-    inline = [
-      "$sysprep = \"$Env:SystemRoot\\System32\\Sysprep\\Sysprep.exe\"",
-      "Start-Process -Wait -FilePath $sysprep -ArgumentList '/generalize','/oobe','/shutdown','/quiet'"
-    ]
   }
 
   post-processor "shell-local" {

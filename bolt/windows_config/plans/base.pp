@@ -1,4 +1,5 @@
 plan windows_config::base(
+  TargetSpec $targets,
   String $local_temp_path,
   Boolean $ena_drivers,
   Boolean $nvme_drivers

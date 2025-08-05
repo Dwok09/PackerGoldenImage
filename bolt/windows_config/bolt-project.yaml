@@ -1,3 +1,4 @@
 name: windows_config
-plans: plans
+plans:
+  - plans
 modules: []
