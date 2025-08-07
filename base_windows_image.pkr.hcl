@@ -93,6 +93,12 @@ build {
 
   provisioner "powershell" {
     inline = [
+      "Import-Module PuppetBolt",
+    ]
+  }
+
+  provisioner "powershell" {
+    inline = [
       "bolt plan run windows_config --targets localhost --project C:\\temp\\windows_config"
     ]
   }
