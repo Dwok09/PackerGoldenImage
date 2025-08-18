@@ -99,7 +99,7 @@ build {
 
   provisioner "powershell" {
     inline = [
-      "bolt plan run windows_config --targets localhost --project C:\\temp\\windows_config"
+      "bolt plan run windows_config --targets localhost --project C:\\Users\\derek\\Epic\\PackerGoldenImage\\bolt\\windows_config"
     ]
   }
 
