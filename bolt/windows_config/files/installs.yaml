@@ -1,0 +1,8 @@
+source_name: epicgamesedgeusnv1
+source_url: https://epicgamesedgeusnv1.jfrog.io/artifactory/api/nuget/it-chocolatey
+
+packages:
+  7zip: '24.9.0'
+  git: latest
+  googlechrome: latest
+  vscode: latest

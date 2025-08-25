@@ -1,40 +1,39 @@
 plan windows_config::puppet(
-  TargetSpec $targets
+  TargetSpec $targets = 'localhost',
 ) {
-  # Create directory structure
-  run_command("New-Item -ItemType Directory -Force -Path 'C:/Temp/PuppetTest'", $targets)
 
-  # Download Puppet agent
-  run_command(
-    "powershell.exe -Command \"Invoke-WebRequest -Uri 'https://downloads.puppet.com/windows/puppet-agent-x64-latest.msi' -OutFile 'C:/Temp/PuppetTest/PuppetAgent.msi' -UseBasicParsing\"",
-    $targets
-  )
+  run_command("powershell.exe -NoProfile -Command New-Item -ItemType Directory -Force -Path 'C:\\Temp\\PuppetTest' | Out-Null", $targets)
 
-  # Install Puppet
   run_command(
-    "msiexec /i C:/Temp/PuppetTest/PuppetAgent.msi /qn /norestart PUPPET_MASTER_SERVER=puppet.it.epicgames.com",
-    $targets
-  )
-
-  # Configure services
-  run_command(
-    "powershell.exe -Command \"Get-Service *puppet* | Stop-Service puppet -ErrorAction SilentlyContinue\"",
+    "powershell.exe -NoProfile -Command \"Invoke-WebRequest -Uri 'https://downloads.puppet.com/windows/puppet-agent-x64-latest.msi' -OutFile 'C:\\Temp\\PuppetTest\\PuppetAgent.msi' -UseBasicParsing\"",
     $targets
   )
 
   run_command(
-    "powershell.exe -Command \"Get-Service *puppet* | Set-Service puppet -StartupType Manual \"",
+    "msiexec /i \"C:\\Temp\\PuppetTest\\PuppetAgent.msi\" /qn /norestart PUPPET_MASTER_SERVER=puppet.it.epicgames.com",
     $targets
   )
 
   run_command(
-    "powershell.exe -Command \"@('custom_attributes:', '  challengePassword: TEST-SECRET') | Out-File 'C:/ProgramData/PuppetLabs/puppet/etc/csr_attributes.yaml' -Encoding ASCII\"",
+    "powershell.exe -NoProfile -Command \"Get-Service -Name '*puppet*' | ForEach-Object { try { Stop-Service -Name \$_.Name -Force -ErrorAction SilentlyContinue } catch {} ; try { Set-Service -Name \$_.Name -StartupType Manual -ErrorAction SilentlyContinue } catch {} }\"",
+    $targets
+  )
+
+  run_command(
+    "powershell.exe -NoProfile -Command \"New-Item -ItemType Directory -Force -Path 'C:\\ProgramData\\PuppetLabs\\puppet\\etc' | Out-Null\"",
+    $targets
+  )
+
+  run_command(
+    "powershell.exe -NoProfile -Command \"@('custom_attributes:', '  challengePassword: TEST-SECRET') | Set-Content -Path 'C:\\ProgramData\\PuppetLabs\\puppet\\etc\\csr_attributes.yaml' -Encoding ASCII -Force\"",
     $targets
   )
 
   upload_file(
-    'windows_config/files/puppet.conf',  # Source path relative to module
-    'C:/ProgramData/PuppetLabs/puppet/etc/puppet.conf',  # Destination path
+    'windows_config/puppet.conf',
+    'C:/ProgramData/PuppetLabs/puppet/etc/puppet.conf',
     $targets
   )
+
+  notice('Puppet agent installed, services configured, csr_attributes.yaml written, and puppet.conf uploaded.')
 }

@@ -78,14 +78,17 @@ build {
       "New-Item -Path C:\\temp\\windows_config\\plans -ItemType Directory -Force",
       
       "Copy-Item A:\\agent-config.yml C:\\temp\\windows_config\\files\\agent-config.yml -Force",
+      "Copy-Item A:\\choco-helper.ps1 C:\\temp\\windows_config\\files\\choco-helper.ps1 -Force",
       "Copy-Item A:\\install.ps1 C:\\temp\\windows_config\\files\\install.ps1 -Force",
+      "Copy-Item A:\\installs.yaml C:\\temp\\windows_config\\files\\installs.yaml -Force",
       "Copy-Item A:\\LaunchConfig.json C:\\temp\\windows_config\\files\\LaunchConfig.json -Force",
+      "Copy-Item A:\\puppet.conf C:\\temp\\windows_config\\files\\puppet.conf -Force",
 
       "Copy-Item A:\\aws.pp C:\\temp\\windows_config\\plans\\aws.pp -Force",
       "Copy-Item A:\\base.pp C:\\temp\\windows_config\\plans\\base.pp -Force",
+      "Copy-Item A:\\choco.pp C:\\temp\\windows_config\\plans\\choco.pp -Force",
       "Copy-Item A:\\init.pp C:\\temp\\windows_config\\plans\\init.pp -Force",
       "Copy-Item A:\\puppet.pp C:\\temp\\windows_config\\plans\\puppet.pp -Force",
-      "Copy-Item A:\\update.pp C:\\temp\\windows_config\\plans\\update.pp -Force",
 
       "Copy-Item A:\\bolt-project.yaml C:\\temp\\windows_config\\bolt-project.yaml -Force"
     ]
@@ -99,40 +102,41 @@ build {
 
   provisioner "powershell" {
     inline = [
-      "bolt plan run windows_config --targets localhost --project C:\\Users\\derek\\Epic\\PackerGoldenImage\\bolt\\windows_config"
+      "bolt plan run windows_config --targets localhost --project C:\\temp\\windows_config"
     ]
   }
 
   provisioner "powershell" {
     inline = [
+      "Write-Host 'Running Sysprep...'",
       "$sysprep = \"$Env:SystemRoot\\System32\\Sysprep\\Sysprep.exe\"",
-      "Start-Process -Wait -FilePath $sysprep -ArgumentList '/generalize','/oobe','/shutdown','/quiet'"
+      "Start-Process -Wait -FilePath $sysprep -ArgumentList '/generalize','/oobe','/reboot','/quiet'"
     ]
   }
 
-  provisioner "windows-restart" {
-    restart_check_command = "powershell -command \"& {Write-Output 'restarted.'}\""
-    restart_timeout = "10m"
-    restart_command = "shutdown /r /t 45 /f"
-    timeout         = "10m"
-  }
+  # provisioner "windows-restart" {
+  #   restart_check_command = "powershell -command \"& {Write-Output 'restarted.'}\""
+  #   restart_timeout = "10m"
+  #   restart_command = "shutdown /r /t 45 /f"
+  #   timeout         = "10m"
+  # }
 
-  post-processor "shell-local" {
-    inline = [
-      "C:\\'Program Files'\\VMware\\'VMware OVF Tool'\\ovftool.exe ${var.vmware_output_dir}/${var.vm_name}.vmx ${var.vmware_output_dir}/${var.vm_name}.ova"
-    ]
-  }
+  # post-processor "shell-local" {
+  #   inline = [
+  #     "C:\\'Program Files'\\VMware\\'VMware OVF Tool'\\ovftool.exe ${var.vmware_output_dir}/${var.vm_name}.vmx ${var.vmware_output_dir}/${var.vm_name}.ova"
+  #   ]
+  # }
 
-  post-processor "amazon-import" {
-    region         = "us-east-1"
-    s3_bucket_name = var.s3_bucket_name
-    skip_clean     = false
-    license_type   = "BYOL"
+  # post-processor "amazon-import" {
+  #   region         = "us-east-1"
+  #   s3_bucket_name = var.s3_bucket_name
+  #   skip_clean     = false
+  #   license_type   = "BYOL"
 
-    tags = {
-      Name    = "Windows11-Custom"
-      Source  = "ISO"
-      Version = formatdate("YYYY-MM-DD", timestamp())
-    }
-  }
+  #   tags = {
+  #     Name    = "Windows11-Custom"
+  #     Source  = "ISO"
+  #     Version = formatdate("YYYY-MM-DD", timestamp())
+  #   }
+  # }
 }
