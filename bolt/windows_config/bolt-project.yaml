@@ -1,4 +1,6 @@
 name: windows_config
 plans:
   - plans
-modules: []
+modules:
+  - puppetlabs/chocolatey
+  - puppetlabs/stdlib

@@ -36,6 +36,10 @@ plan windows_config(
     targets => $targets,
   )
 
+  run_plan('windows_config::choco',
+    targets => $targets,
+  )
+
   run_plan('windows_config::aws',
     targets => $targets,
     local_temp_path => $local_temp_path,

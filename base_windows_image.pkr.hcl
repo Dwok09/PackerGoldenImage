@@ -40,6 +40,7 @@ source "vmware-iso" "windows11" {
   memory            = 4096
   floppy_files = [
     "./http/autounattend.xml",
+    "./http/sysprep-unattend.xml",
     "./scripts/winrm.ps1",
     "./scripts/sysprep.ps1",
     "./bolt/windows_config"
@@ -78,7 +79,6 @@ build {
       "New-Item -Path C:\\temp\\windows_config\\plans -ItemType Directory -Force",
       
       "Copy-Item A:\\agent-config.yml C:\\temp\\windows_config\\files\\agent-config.yml -Force",
-      "Copy-Item A:\\choco-helper.ps1 C:\\temp\\windows_config\\files\\choco-helper.ps1 -Force",
       "Copy-Item A:\\install.ps1 C:\\temp\\windows_config\\files\\install.ps1 -Force",
       "Copy-Item A:\\installs.yaml C:\\temp\\windows_config\\files\\installs.yaml -Force",
       "Copy-Item A:\\LaunchConfig.json C:\\temp\\windows_config\\files\\LaunchConfig.json -Force",
@@ -90,13 +90,17 @@ build {
       "Copy-Item A:\\init.pp C:\\temp\\windows_config\\plans\\init.pp -Force",
       "Copy-Item A:\\puppet.pp C:\\temp\\windows_config\\plans\\puppet.pp -Force",
 
-      "Copy-Item A:\\bolt-project.yaml C:\\temp\\windows_config\\bolt-project.yaml -Force"
+      "Copy-Item A:\\bolt-project.yaml C:\\temp\\windows_config\\bolt-project.yaml -Force",
+
+      "Copy-Item A:\\sysprep-unattend.xml C:\\temp\\sysprep-unattend.xml -Force"
     ]
   }
 
   provisioner "powershell" {
     inline = [
-      "Import-Module PuppetBolt",
+      "Set-Location C:\\temp\\windows_config",
+      "bolt module install --project . --no-color",
+      "Import-Module PuppetBolt"
     ]
   }
 
@@ -110,7 +114,7 @@ build {
     inline = [
       "Write-Host 'Running Sysprep...'",
       "$sysprep = \"$Env:SystemRoot\\System32\\Sysprep\\Sysprep.exe\"",
-      "Start-Process -Wait -FilePath $sysprep -ArgumentList '/generalize','/oobe','/reboot','/quiet'"
+      "Start-Process -Wait -FilePath $sysprep -ArgumentList '/generalize','/oobe','/reboot','/quiet', '/unattned:C:\\temp\\sysprep-unattend.xml'"
     ]
   }
 
