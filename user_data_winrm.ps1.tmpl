@@ -1,0 +1,21 @@
+<powershell>
+$Password = 'Passw0rd'
+
+Try {
+  net user Administrator $Password
+  (Get-LocalUser -Name Administrator).Enabled -or (Enable-LocalUser -Name Administrator)
+} Catch {
+  Write-Host "Failed to set Administrator password: $($_.Exception.Message)"; exit 1
+}
+
+$cert = New-SelfSignedCertificate -DnsName "packer" -CertStoreLocation Cert:\LocalMachine\My
+New-Item -Path WSMan:\LocalHost\Listener -Transport HTTPS -Address * -CertificateThumbPrint $cert.Thumbprint -Force | Out-Null
+
+Set-Item WSMan:\localhost\Service\Auth\Basic -Value $true
+Set-Item WSMan:\localhost\Service\AllowUnencrypted -Value $false
+Enable-PSRemoting -Force
+
+netsh advfirewall firewall add rule name="WinRM-HTTPS" dir=in action=allow protocol=TCP localport=5986
+
+Write-Host "User data complete."
+</powershell>

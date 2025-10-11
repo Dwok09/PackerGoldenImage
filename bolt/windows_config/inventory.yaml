@@ -1,0 +1,9 @@
+---
+version: 2
+config:
+  transport: local
+  local:
+    interpreters:
+      .rb: 'C:\Program Files\Puppet Labs\Puppet\puppet\bin\ruby.exe'
+targets:
+  - uri: localhost

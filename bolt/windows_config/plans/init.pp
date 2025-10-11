@@ -32,9 +32,9 @@ plan windows_config(
     nvme_drivers => $nvme_drivers
   )
 
-  run_plan('windows_config::puppet',
-    targets => $targets,
-  )
+  # run_plan('windows_config::puppet',
+  #   targets => $targets,
+  # )
 
   run_plan('windows_config::choco',
     targets => $targets,

@@ -1,8 +1,11 @@
-source_name: epicgamesedgeusnv1
-source_url: https://epicgamesedgeusnv1.jfrog.io/artifactory/api/nuget/it-chocolatey
+# source_name: epicgamesedgeusnv1
+# source_url: https://epicgamesedgeusnv1.jfrog.io/artifactory/api/nuget/it-chocolatey
+
+source_name: choco
+source_url: https://community.chocolatey.org/api/v2/
 
 packages:
   7zip: '24.9.0'
   git: latest
-  googlechrome: latest
+  slack: latest
   vscode: latest
