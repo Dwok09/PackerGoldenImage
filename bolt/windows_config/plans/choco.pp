@@ -9,7 +9,7 @@ plan windows_config::choco(
     $src   = $cfg['source_name']
     $url   = $cfg['source_url']
     $pkgs  = $cfg['packages']
-    $disable = $cfg['disable_community'] # assumed present if you use it
+    $disable = $cfg['disable_community']
 
     class { 'chocolatey': }
 
@@ -17,20 +17,11 @@ plan windows_config::choco(
       ensure => enabled,
     }
 
-    # Configure your internal source (no creds)
-    chocolateysource { $src:
-      ensure   => present,
-      location => $url,
-      priority => 1,
-    }
-
-    # Default all packages to Chocolatey + your source
     Package {
       provider => chocolatey,
-      source   => $src,
+      source   => $url,
     }
 
-    # Install packages from YAML (version string, 'latest', or 'absent')
     $pkgs.each |String $name, Variant[String, Integer] $want| {
       package { $name:
         ensure => $want ? {

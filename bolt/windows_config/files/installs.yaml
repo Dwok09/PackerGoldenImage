@@ -1,11 +1,18 @@
-# source_name: epicgamesedgeusnv1
-# source_url: https://epicgamesedgeusnv1.jfrog.io/artifactory/api/nuget/it-chocolatey
+source_name: epicgamesedgeusnv1
+source_url: https://epicgamesedgeusnv1.jfrog.io/artifactory/api/nuget/it-chocolatey
+disable_community: true
 
-source_name: choco
-source_url: https://community.chocolatey.org/api/v2/
+source_username: derek.walker
+source_password: cmVmdGtuOjAxOjE3OTMwNDE1MTU6b05UR1FDVDliWXNlYUtRUjMwdVhDOUtzckp1
 
 packages:
-  7zip: '24.9.0'
-  git: latest
   slack: latest
-  vscode: latest
+  adobe_after_effects: latest
+  adobe_photoshop: latest
+  houdini_launcher: latest
+  rv: latest
+  crazybump: latest
+  xnormal: latest
+  zbrush: latest
+  epic_art_pipeline_tools: latest
+  ffmpeg: latest
