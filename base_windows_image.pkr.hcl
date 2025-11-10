@@ -12,8 +12,21 @@ source "amazon-ebs" "win" {
   user_data               = templatefile("${path.root}/user_data_winrm.ps1.tmpl", {})
 
   tags = {
-    Name = "windows-base-ami"
+    Name = "derek-test-ami"
     BuiltBy = "packer"
+    Service = "megastation"
+    Owner = "Derek Walker"
+    Contact = "derek.walker@xa.epicgames.com"
+    EUID = "Testing for megastation provisioning"
+  }
+
+  run_tags = {
+    Name = "derek-test-ami"
+    BuiltBy = "packer"
+    Service = "megastation"
+    Owner = "Derek Walker"
+    Contact = "derek.walker@xa.epicgames.com"
+    EUID = "Testing for megastation provisioning"
   }
 
   source_ami_filter {
